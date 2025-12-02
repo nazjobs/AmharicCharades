@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- UI Brand Colors -->
+    <color name="primary_bg">#ECF0F1</color> <!-- This is the missing color! -->
+    <color name="text_dark">#2C3E50</color>
+
+    <!-- Category Colors -->
+    <color name="cat_movies">#16A085</color>  <!-- Teal -->
+    <color name="cat_animals">#2980B9</color> <!-- Blue -->
+    <color name="cat_places">#F1C40F</color>  <!-- Yellow -->
+    <color name="cat_celebs">#8E44AD</color>  <!-- Purple -->
+    <color name="cat_literature">#E67E22</color> <!-- Orange -->
+    <color name="cat_proverbs">#D81B60</color> <!-- Pink/Red -->
+    <color name="cat_random">#34495E</color>   <!-- Dark Slate -->
+
+    <!-- Game Status Colors -->
+    <color name="game_correct">#2ECC71</color> <!-- Green -->
+    <color name="game_pass">#E74C3C</color>    <!-- Red -->
+    <color name="game_neutral">#3498DB</color> <!-- Blue -->
+    <color name="timer_warning">#E67E22</color>
+</resources>
