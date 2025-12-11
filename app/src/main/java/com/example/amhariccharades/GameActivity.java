@@ -3,6 +3,7 @@ package com.example.amhariccharades;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -47,11 +48,23 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private MediaPlayer mpCorrect;
     private MediaPlayer mpPass;
 
+    // Settings
+    private long totalTimeInMillis; // Remove 'static final'
+    private boolean isSoundEnabled;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_game);
+
+        // READ SETTINGS
+        SharedPreferences prefs = getSharedPreferences("CharadesPrefs", MODE_PRIVATE);
+        int seconds = prefs.getInt("RoundTime", 60); // Get saved time
+        isSoundEnabled = prefs.getBoolean("SoundEnabled", true); // Get saved sound
+
+        totalTimeInMillis = seconds * 1000L; // Convert to millis
+        timeLeftInMillis = totalTimeInMillis; // Set initial time
 
         // 1. Initialize UI
         tvWord = findViewById(R.id.tvWord);
@@ -197,7 +210,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private void restartGame() {
         // Reset everything
         setupGameData();
-        timeLeftInMillis = TOTAL_TIME;
+        timeLeftInMillis = totalTimeInMillis;
         startGame();
     }
 
@@ -214,12 +227,14 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private void processGuess(boolean isCorrect) {
         if (!isGameActive || isPaused) return;
 
+        // Inside processGuess(boolean isCorrect)
+
         if (isCorrect) {
-            if (mpCorrect != null) mpCorrect.start();
+            if (isSoundEnabled && mpCorrect != null) mpCorrect.start(); // CHECK ADDED
             correctWords.add(wordList.get(currentIndex));
             flashScreen(R.color.game_correct);
         } else {
-            if (mpPass != null) mpPass.start();
+            if (isSoundEnabled && mpPass != null) mpPass.start(); // CHECK ADDED
             passedWords.add(wordList.get(currentIndex));
             flashScreen(R.color.game_pass);
         }
