@@ -1,24 +1,38 @@
 package com.example.amhariccharades;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
+import android.view.View;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class InstructionActivity extends AppCompatActivity {
+
+    private String selectedCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_instruction);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        // 1. Get the category passed from CategoryActivity
+        selectedCategory = getIntent().getStringExtra("CATEGORY_NAME");
+
+        // 2. Setup Start Button
+        Button btnStart = findViewById(R.id.btnStartGame);
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startGame();
+            }
         });
+    }
+
+    private void startGame() {
+        // Pass the category to the final Game Activity
+        Intent intent = new Intent(InstructionActivity.this, GameActivity.class);
+        intent.putExtra("CATEGORY_NAME", selectedCategory);
+        startActivity(intent);
+        finish(); // Remove instruction screen from back stack so they don't return here
     }
 }
