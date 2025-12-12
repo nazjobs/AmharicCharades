@@ -21,6 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <!-- ROUND TIME SECTION -->
     <TextView
         android:id="@+id/tvTimeLabel"
@@ -49,7 +50,8 @@
             android:layout_weight="1"
             android:text="60s"
             android:checked="true"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textColor="@color/text_dark" /> <!-- ADD THIS LINE -->/>
 
         <RadioButton
             android:id="@+id/rb90"
@@ -57,7 +59,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="90s"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textColor="@color/text_dark" /> <!-- ADD THIS LINE -->/>
 
         <RadioButton
             android:id="@+id/rb120"
@@ -65,7 +68,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="120s"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textColor="@color/text_dark" /> <!-- ADD THIS LINE -->/>
     </RadioGroup>
 
     <!-- SOUND SECTION -->

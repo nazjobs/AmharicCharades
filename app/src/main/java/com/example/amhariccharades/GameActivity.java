@@ -1,7 +1,6 @@
 package com.example.amhariccharades;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -12,7 +11,9 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,11 +23,10 @@ import java.util.Collections;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
 
-    // UI Elements
     private TextView tvWord, tvTimer;
     private ConstraintLayout gameContainer;
+    private ImageButton btnPause;
 
-    // Game Data
     private ArrayList<String> wordList;
     private ArrayList<String> correctWords = new ArrayList<>();
     private ArrayList<String> passedWords = new ArrayList<>();
@@ -34,23 +34,20 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private boolean isGameActive = false;
     private boolean isPaused = false;
 
-    // Sensors
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private boolean canGuess = true;
 
-    // Timer Logic
     private CountDownTimer timer;
-    private static final long TOTAL_TIME = 60000; // 60 Seconds
-    private long timeLeftInMillis = TOTAL_TIME;   // Track time left for pausing
+    private long totalTimeInMillis;
+    private long timeLeftInMillis;
 
-    // Sounds
-    private MediaPlayer mpCorrect;
-    private MediaPlayer mpPass;
-
-    // Settings
-    private long totalTimeInMillis; // Remove 'static final'
     private boolean isSoundEnabled;
+    private MediaPlayer mpCorrect, mpPass;
+
+    // Handler to fix the "Stuck on Green" bug
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable resetRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,37 +55,32 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_game);
 
-        // READ SETTINGS
         SharedPreferences prefs = getSharedPreferences("CharadesPrefs", MODE_PRIVATE);
-        int seconds = prefs.getInt("RoundTime", 60); // Get saved time
-        isSoundEnabled = prefs.getBoolean("SoundEnabled", true); // Get saved sound
+        int seconds = prefs.getInt("RoundTime", 60);
+        isSoundEnabled = prefs.getBoolean("SoundEnabled", true);
+        totalTimeInMillis = seconds * 1000L;
+        timeLeftInMillis = totalTimeInMillis;
 
-        totalTimeInMillis = seconds * 1000L; // Convert to millis
-        timeLeftInMillis = totalTimeInMillis; // Set initial time
-
-        // 1. Initialize UI
         tvWord = findViewById(R.id.tvWord);
         tvTimer = findViewById(R.id.tvTimer);
         gameContainer = findViewById(R.id.gameContainer);
+        btnPause = findViewById(R.id.btnPause);
 
-        // 2. Load Sounds
         try {
             mpCorrect = MediaPlayer.create(this, R.raw.sound_correct);
             mpPass = MediaPlayer.create(this, R.raw.sound_pass);
         } catch (Exception e) { e.printStackTrace(); }
 
-        // 3. Get Data & Setup
         setupGameData();
 
-        // 4. Setup Sensors
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        // 5. Setup Touch Fallback
         findViewById(R.id.touchCorrect).setOnClickListener(v -> processGuess(true));
         findViewById(R.id.touchPass).setOnClickListener(v -> processGuess(false));
 
-        // 6. Start Game
+        btnPause.setOnClickListener(v -> pauseGame());
+
         startGame();
     }
 
@@ -104,60 +96,45 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private void startGame() {
         isGameActive = true;
         isPaused = false;
+        canGuess = true;
 
-        // Register sensor
         if (accelerometer != null) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         }
-
         showNextWord();
         startTimer(timeLeftInMillis);
     }
 
     private void startTimer(long duration) {
-        if (timer != null) {
-            timer.cancel();
-        }
-
+        if (timer != null) timer.cancel();
         timer = new CountDownTimer(duration, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                timeLeftInMillis = millisUntilFinished; // Update variable constantly
+                timeLeftInMillis = millisUntilFinished;
                 tvTimer.setText(String.valueOf(millisUntilFinished / 1000));
             }
-
             @Override
-            public void onFinish() {
-                endGame();
-            }
+            public void onFinish() { endGame(); }
         }.start();
     }
 
-    // --- PAUSE LOGIC ---
-
     @Override
     public void onBackPressed() {
-        // If game is running, pause it instead of exiting
-        if (isGameActive && !isPaused) {
-            pauseGame();
-        } else {
-            super.onBackPressed();
-        }
+        pauseGame();
     }
 
     private void pauseGame() {
+        if (!isGameActive || isPaused) return;
+
         isPaused = true;
-        isGameActive = false; // Stop processing guesses
+        isGameActive = false;
 
-        // 1. Stop Timer
-        if (timer != null) {
-            timer.cancel();
-        }
-
-        // 2. Stop Sensor (So tilting while looking at the menu doesn't count)
+        if (timer != null) timer.cancel();
         sensorManager.unregisterListener(this);
 
-        // 3. Show Dialog
+        // CRITICAL FIX: Cancel any pending "Reset to Blue" commands
+        if (resetRunnable != null) handler.removeCallbacks(resetRunnable);
+
         showPauseDialog();
     }
 
@@ -165,56 +142,37 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("PAUSED");
         builder.setMessage("Time Remaining: " + (timeLeftInMillis / 1000) + "s");
-        builder.setCancelable(false); // User must click a button
-
-        // Button: RESUME
-        builder.setPositiveButton("RESUME", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                resumeGame();
-            }
-        });
-
-        // Button: RESTART ROUND
-        builder.setNeutralButton("RESTART", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                restartGame();
-            }
-        });
-
-        // Button: QUIT
-        builder.setNegativeButton("QUIT", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish(); // Close activity, go back to instructions
-            }
-        });
-
+        builder.setCancelable(false);
+        builder.setPositiveButton("RESUME", (dialog, which) -> resumeGame());
+        builder.setNeutralButton("RESTART", (dialog, which) -> restartGame());
+        builder.setNegativeButton("QUIT", (dialog, which) -> finish());
         builder.show();
     }
 
     private void resumeGame() {
         isPaused = false;
         isGameActive = true;
-
-        // Re-register sensor
+        resetCardState(); // Force UI back to neutral immediately
         if (accelerometer != null) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         }
-
-        // Resume timer from where we left off
         startTimer(timeLeftInMillis);
     }
 
     private void restartGame() {
-        // Reset everything
+        resetCardState();
         setupGameData();
         timeLeftInMillis = totalTimeInMillis;
         startGame();
     }
 
-    // --- GAMEPLAY LOGIC ---
+    private void resetCardState() {
+        gameContainer.setBackgroundResource(R.color.game_neutral);
+        canGuess = true;
+        if (currentIndex < wordList.size()) {
+            tvWord.setText(wordList.get(currentIndex));
+        }
+    }
 
     private void showNextWord() {
         if (currentIndex < wordList.size()) {
@@ -225,42 +183,38 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void processGuess(boolean isCorrect) {
-        if (!isGameActive || isPaused) return;
-
-        // Inside processGuess(boolean isCorrect)
+        if (!isGameActive || isPaused || !canGuess) return;
 
         if (isCorrect) {
-            if (isSoundEnabled && mpCorrect != null) mpCorrect.start(); // CHECK ADDED
+            if (isSoundEnabled && mpCorrect != null) mpCorrect.start();
             correctWords.add(wordList.get(currentIndex));
-            flashScreen(R.color.game_correct);
+            flashScreen(R.color.game_correct, "CORRECT!");
         } else {
-            if (isSoundEnabled && mpPass != null) mpPass.start(); // CHECK ADDED
+            if (isSoundEnabled && mpPass != null) mpPass.start();
             passedWords.add(wordList.get(currentIndex));
-            flashScreen(R.color.game_pass);
+            flashScreen(R.color.game_pass, "PASS");
         }
 
         currentIndex++;
+        canGuess = false;
 
-        new Handler().postDelayed(() -> {
-            // Only update UI if we are still playing (didn't pause during the flash)
+        resetRunnable = () -> {
             if (!isPaused) {
-                gameContainer.setBackgroundResource(R.color.game_neutral);
+                resetCardState();
                 showNextWord();
-                canGuess = true;
             }
-        }, 1000);
+        };
+        handler.postDelayed(resetRunnable, 1000);
     }
 
-    private void flashScreen(int colorResId) {
+    private void flashScreen(int colorResId, String text) {
         gameContainer.setBackgroundResource(colorResId);
-        tvWord.setText(colorResId == R.color.game_correct ? "CORRECT!" : "PASS");
-        canGuess = false;
+        tvWord.setText(text);
     }
 
     private void endGame() {
         isGameActive = false;
         if (timer != null) timer.cancel();
-
         Intent intent = new Intent(GameActivity.this, ScoreActivity.class);
         intent.putStringArrayListExtra("CORRECT_LIST", correctWords);
         intent.putStringArrayListExtra("PASS_LIST", passedWords);
@@ -269,11 +223,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         finish();
     }
 
-    // --- SENSOR ---
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (!isGameActive || isPaused || !canGuess) return;
-
         float z = event.values[2];
         if (z > 7.0f) processGuess(true);
         else if (z < -7.0f) processGuess(false);
@@ -285,9 +237,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onPause() {
         super.onPause();
-        // Pause if app goes to background (e.g. user presses Home button)
-        if (isGameActive && !isPaused) {
-            pauseGame();
-        }
+        if (isGameActive && !isPaused) pauseGame();
     }
 }

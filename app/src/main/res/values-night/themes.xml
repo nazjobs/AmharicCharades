@@ -3,14 +3,15 @@
     <color name="black">#FFFFFFFF</color>
     <color name="white">#FF000000</color>
 
-    <!-- UI Brand Colors (Dark Mode) -->
-    <color name="primary_bg">#121212</color>
-    <color name="text_dark">#ECF0F1</color>
+    <!-- Deep Black Background -->
+    <color name="primary_bg">#000000</color>
 
-    <!-- Cards/Containers -->
+    <!-- PURE WHITE TEXT (This fixes visibility) -->
+    <color name="text_dark">#FFFFFF</color>
+
     <color name="surface_card">#1E1E1E</color>
 
-    <!-- Category Colors -->
+    <!-- Categories -->
     <color name="cat_movies">#1ABC9C</color>
     <color name="cat_animals">#3498DB</color>
     <color name="cat_places">#F1C40F</color>
@@ -19,7 +20,7 @@
     <color name="cat_proverbs">#D81B60</color>
     <color name="cat_random">#34495E</color>
 
-    <!-- Game Status Colors -->
+    <!-- Game Colors -->
     <color name="game_correct">#27AE60</color>
     <color name="game_pass">#C0392B</color>
     <color name="game_neutral">#2C3E50</color>
