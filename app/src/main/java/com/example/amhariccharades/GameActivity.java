@@ -227,8 +227,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
         if (!isGameActive || isPaused || !canGuess) return;
         float z = event.values[2];
-        if (z > 7.0f) processGuess(true);
-        else if (z < -7.0f) processGuess(false);
+        if (z > 7.0f) processGuess(false); // Tilt Up -> Now PASS (Red)
+        else if (z < -7.0f) processGuess(true); // Tilt Down -> Now CORRECT (Green)
     }
 
     @Override

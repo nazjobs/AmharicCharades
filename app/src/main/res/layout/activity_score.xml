@@ -148,7 +148,7 @@
             app:cornerRadius="30dp"
             android:backgroundTint="@color/game_neutral"
             app:layout_constraintTop_toBottomOf="@+id/resultsContainer"
-            android:textColor="@color/white"/>
+            android:textColor="@color/black"/>
 
         <Button
             android:id="@+id/btnHome"

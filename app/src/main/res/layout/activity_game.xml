@@ -6,7 +6,7 @@
     android:id="@+id/gameContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/game_neutral"
+    android:background="@color/cat_random"
     tools:context=".GameActivity">
 
     <!-- TOP BAR (Centered Timer & Pause) -->
@@ -29,6 +29,7 @@
             android:padding="12dp"
             android:src="@android:drawable/ic_media_pause"
             app:tint="@color/white" />
+
 
         <View
             android:layout_width="24dp"
@@ -55,7 +56,7 @@
         android:layout_margin="32dp"
         android:gravity="center"
         android:text="Get Ready..."
-        android:textColor="@color/white"
+        android:textColor="@color/cat_literature"
         android:textStyle="bold"
         app:autoSizeMaxTextSize="200sp"
         app:autoSizeMinTextSize="20sp"

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary_bg"
+    android:background="@color/game_neutral"
     android:padding="24dp"
     tools:context=".GameSettingsActivity">
 
@@ -23,17 +23,30 @@
 
 
     <!-- ROUND TIME SECTION -->
+
     <TextView
         android:id="@+id/tvTimeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="96dp"
         android:text="Round Time (Seconds)"
         android:textColor="@color/text_dark"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvSettingsTitle" />
+
+    <TextView
+        android:id="@+id/tvSoundLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="72dp"
+        android:text="Sound Effects"
+        android:textColor="@color/text_dark"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroupTime" />
 
     <RadioGroup
         android:id="@+id/radioGroupTime"
@@ -73,36 +86,28 @@
     </RadioGroup>
 
     <!-- SOUND SECTION -->
-    <TextView
-        android:id="@+id/tvSoundLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Sound Effects"
-        android:textColor="@color/text_dark"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroupTime" />
+
+    <!-- SAVE BUTTON -->
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switchSound"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Enable Audio"
+        android:layout_marginTop="28dp"
         android:checked="true"
+        android:text="Enable Audio"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@+id/tvSoundLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/tvSoundLabel"
+        tools:layout_editor_absoluteX="16dp" />
 
-    <!-- SAVE BUTTON -->
     <Button
         android:id="@+id/btnSaveSettings"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:text="SAVE &amp; RETURN"
         android:textSize="18sp"
-        android:backgroundTint="@color/game_neutral"
+        android:backgroundTint="@color/cardview_light_background"
+        android:textColor="@color/cat_animals"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
