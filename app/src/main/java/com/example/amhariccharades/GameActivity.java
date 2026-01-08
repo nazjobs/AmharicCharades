@@ -226,6 +226,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         intent.putStringArrayListExtra("CORRECT_LIST", correctWords);
         intent.putStringArrayListExtra("PASS_LIST", passedWords);
         intent.putExtra("TOTAL_SCORE", correctWords.size());
+        // Pass the category name forward to the Score Screen
+        intent.putExtra("CATEGORY_NAME", getIntent().getStringExtra("CATEGORY_NAME"));
         startActivity(intent);
         finish();
     }
