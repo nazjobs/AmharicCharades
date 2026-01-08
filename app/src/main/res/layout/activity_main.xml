@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/game_neutral"
     tools:context=".MainActivity">
+<!--    android:background="@color/game_neutral"-->
 
     <!-- Big Title -->
 
@@ -33,8 +33,8 @@
         android:id="@+id/btnPlay"
         android:layout_width="239dp"
         android:layout_height="91dp"
-        android:backgroundTint="@color/cat_random"
-        android:textColor="@color/black"
+        android:backgroundTint="@color/game_neutral"
+        android:textColor="@color/white"
         android:text="PLAY"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -50,10 +50,10 @@
         android:layout_width="238dp"
         android:layout_height="82dp"
         android:layout_marginTop="20dp"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:backgroundTint="@color/cat_random"
+        android:backgroundTint="@color/game_neutral"
         android:text="SETTINGS"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"

@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
 
-    <!-- UI Brand Colors -->
-    <color name="primary_bg">#ECF0F1</color> <!-- This is the missing color! -->
-    <color name="text_dark">#2C3E50</color>
+    <!-- THEME COLORS (JSON Light - High Contrast) -->
+    <!-- Background: Very Light Mint -->
+    <color name="primary_bg">#F3FBFA</color>
 
-    <!-- Category Colors -->
-    <color name="cat_movies">#16A085</color>  <!-- Teal -->
-    <color name="cat_animals">#2980B9</color> <!-- Blue -->
-    <color name="cat_places">#F1C40F</color>  <!-- Yellow -->
-    <color name="cat_celebs">#8E44AD</color>  <!-- Purple -->
-    <color name="cat_literature">#E67E22</color> <!-- Orange -->
-    <color name="cat_proverbs">#D81B60</color> <!-- Pink/Red -->
-    <color name="cat_random">#34495E</color>   <!-- Dark Slate -->
+    <!-- Text: Deep Teal/Black -->
+    <color name="text_dark">#003232</color>
 
-    <!-- Game Status Colors -->
-    <color name="game_correct">#2ECC71</color> <!-- Green -->
-    <color name="game_pass">#E74C3C</color>    <!-- Red -->
-    <color name="game_neutral">#3498DB</color> <!-- Blue -->
-    <color name="timer_warning">#E67E22</color>
+    <!-- Cards/Buttons: Dark Teal -->
+    <color name="surface_card">#005253</color>
+    <color name="on_surface_card">#FFFFFF</color> <!-- Text on cards -->
+
+    <!-- GAME STATES -->
+    <color name="game_neutral">#006A6A</color> <!-- Primary Teal -->
+    <color name="game_correct">#2E7D32</color> <!-- Green -->
+    <color name="game_pass">#B71C1C</color>    <!-- Red -->
+    <color name="warning_overlay">#D9000000</color>
+
+    <!-- CATEGORIES (Vibrant) -->
+    <color name="cat_animals">#006A6A</color>
+    <color name="cat_movies">#008585</color>
+    <color name="cat_literature">#D65B00</color> <!-- Fixed: Deep Orange -->
+    <color name="cat_places">#558B2F</color>
+    <color name="cat_celebs">#6A1B9A</color>
+    <color name="cat_proverbs">#AD1457</color>
+    <color name="cat_random">#37474F</color>
 </resources>
