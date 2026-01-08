@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -49,11 +50,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private Handler handler = new Handler(Looper.getMainLooper());
     private Runnable resetRunnable;
 
+    // SafeNet Variables
+    private boolean isReadyForTilt = true; // Prevents spamming
+    private TextView tvWarning;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_game);
+
+        tvWarning = findViewById(R.id.tvWarning);
 
         SharedPreferences prefs = getSharedPreferences("CharadesPrefs", MODE_PRIVATE);
         int seconds = prefs.getInt("RoundTime", 60);
@@ -225,10 +232,50 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (!isGameActive || isPaused || !canGuess) return;
-        float z = event.values[2];
-        if (z > 7.0f) processGuess(false); // Tilt Up -> Now PASS (Red)
-        else if (z < -7.0f) processGuess(true); // Tilt Down -> Now CORRECT (Green)
+        if (!isGameActive || isPaused) return;
+
+        float x = event.values[0]; // Vertical Gravity in Landscape
+        float y = event.values[1]; // Side-to-side tilt
+        float z = event.values[2]; // Forward/Back tilt (The guess)
+
+        // 1. SAFENET: Check if phone is UPRIGHT (Landscape)
+        // If X is close to 0, the phone is likely lying flat on a table.
+        // We want X to be high (gravity pulling down on the short edge).
+        if (Math.abs(x) < 5.0f) {
+            if (tvWarning.getVisibility() != View.VISIBLE) {
+                tvWarning.setVisibility(View.VISIBLE);
+                canGuess = false;
+            }
+            return; // STOP HERE. Phone is flat or in portrait mode.
+        } else {
+            // Hide warning if they fixed it
+            if (tvWarning.getVisibility() == View.VISIBLE) {
+                tvWarning.setVisibility(View.GONE);
+                canGuess = true;
+            }
+        }
+
+        if (!canGuess) return;
+
+        // 2. RESET MECHANISM (Anti-Spam)
+        // User must return phone to neutral position (Z between -2 and 2)
+        if (z > -2.0f && z < 2.0f) {
+            isReadyForTilt = true;
+        }
+
+        // 3. GUESS LOGIC
+        if (isReadyForTilt) {
+            if (z < -7.0f) {
+                // TILT DOWN (Screen to floor) -> CORRECT (Green)
+                processGuess(true);
+                isReadyForTilt = false;
+            }
+            else if (z > 7.0f) {
+                // TILT UP (Screen to sky) -> PASS (Red)
+                processGuess(false);
+                isReadyForTilt = false;
+            }
+        }
     }
 
     @Override
